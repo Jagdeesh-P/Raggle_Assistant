@@ -1,4 +1,4 @@
-# Raggle - Retrieval-Augmented Generation Chatbot*
+*# Raggle - Retrieval-Augmented Generation Chatbot*
 
 ![Raggle Logo](https://img.shields.io/badge/Raggle-Chatbot-green)  
 **A custom RAG-based chatbot for querying multi-modal documents without LangChain.**
