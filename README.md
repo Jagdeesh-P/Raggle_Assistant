@@ -34,7 +34,9 @@ Raggle implements a custom RAG pipeline optimized for multi-modal data:
    - FAISS (`IndexFlatL2`) for fast similarity search.
    - MongoDB for persistent metadata and vector storage.
 5. **Retrieval**: Top-k relevant chunks retrieved via FAISS based on query embedding.
-6. **Generation**: Gemini 2.0 Flash API generates responses from retrieved contexts.
+6. **Generation**: We utilize the Gemini 2.0 Flash API from Google as our LLM to generate responses from retrieved contexts. Gemini 2.0 Flash was chosen for its exceptional balance of speed, cost-efficiency, and contextual accuracy, making it ideal for real-time chatbot applications.
+
+- **CLIP Integration**: The CLIP model (`clip-vit-base-patch16`) from OpenAI is incorporated to potentially enhance multi-modal processing. We chose CLIP for its ability to generate joint embeddings for images and text, enabling future capabilities like semantic image/video frame retrieval (e.g., querying visual content directly without relying solely on extracted text). Although currently loaded in video processing, its full potential is reserved for future enhancements, such as embedding raw frames for richer context beyond OCR-based text extraction.
 
 *Why No LangChain?*  
 We built a lightweight, custom RAG pipeline to maintain full control over processing, storage, and retrieval logic, ensuring transparency and optimization tailored to the task.
@@ -165,6 +167,7 @@ We built a lightweight, custom RAG pipeline to maintain full control over proces
   - **Frame Text**: OpenCV detects scene changes (frame diff > 30), EasyOCR extracts text.
     - *Spellchecker*: Corrects OCR errors.
 - **Process**: Video → Audio extraction → Transcription → Frame text → Chunking → Embedding.
+- **Why CLIP?**: We included the CLIP model to lay the groundwork for advanced video analysis. CLIP’s pre-trained vision-language capabilities allow us to potentially embed video frames directly, offering a pathway to answer queries like "Find scenes with a whiteboard" without needing text extraction. While the current implementation relies on EasyOCR and Whisper for text-based retrieval, CLIP’s inclusion reflects our intent to optimize for visual semantics in future iterations, leveraging its zero-shot classification and image-text alignment strengths.
 
 ---
 
