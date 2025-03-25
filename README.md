@@ -3,7 +3,6 @@
 ![Raggle Logo](https://img.shields.io/badge/Raggle-Chatbot-green)  
 **A custom RAG-based chatbot for querying multi-modal documents without LangChain.**
 
----
 
 ## Problem Statement
 
