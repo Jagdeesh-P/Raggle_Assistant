@@ -170,6 +170,52 @@ We built a lightweight, custom RAG pipeline to maintain full control over proces
 - **Why CLIP?**: We included the CLIP model to lay the groundwork for advanced video analysis. CLIP’s pre-trained vision-language capabilities allow us to potentially embed video frames directly, offering a pathway to answer queries like "Find scenes with a whiteboard" without needing text extraction. While the current implementation relies on EasyOCR and Whisper for text-based retrieval, CLIP’s inclusion reflects our intent to optimize for visual semantics in future iterations, leveraging its zero-shot classification and image-text alignment strengths.
 
 ---
+### Component Architecture
+![Component Architecture](screenshots/component_architecture.png)  
+The component architecture delineates Raggle’s modular structure:
+- **Frontend Layer (Streamlit)**: Manages user interactions—file uploads, query input, and response display—via a clean, responsive interface.
+- **Backend Layer (Flask)**: Exposes RESTful API endpoints (`/upload`, `/chat`, `/stats`, etc.) to handle processing, retrieval, and generation requests.
+- **Processing Layer**: Custom modules for each data type:
+  - Text Processor: Handles PDFs, DOCX, CSVs.
+  - Image Processor: Applies OpenCV and EasyOCR.
+  - Video Processor: Integrates ffmpeg, Whisper, and EasyOCR.
+  - YouTube Processor: Uses youtube_transcript_api and yt_dlp.
+- **Embedding Layer**: SentenceTransformer for text vectors, CLIP for potential visual vectors.
+- **Storage Layer**: FAISS for in-memory vector search, MongoDB for persistent storage of vectors and metadata.
+- **Generation Layer**: Gemini 2.0 Flash API for crafting responses from retrieved contexts.
+
+This separation of concerns ensures that each component can be developed, tested, and scaled independently, enhancing maintainability and extensibility.
+
+---
+
+### Data Flow Architecture
+
+The data flow architecture outlines the journey of data through Raggle:
+- **Input Stage**: User uploads files or YouTube URLs via Streamlit, sent to Flask API.
+- **Processing Stage**: Files are parsed into text (e.g., PDF text, video transcripts), chunked into 1000-character segments, and embedded into vectors.
+- **Storage Stage**: Vectors are stored in FAISS for retrieval, with metadata and vectors logged in MongoDB for persistence.
+- **Query Stage**: User submits a query → Embedded with SentenceTransformer → Top-3 chunks retrieved from FAISS → Passed to Gemini 2.0 Flash → Response displayed in Streamlit.
+- **Feedback Loop**: Retrieved contexts refine the generation process, ensuring relevance.
+
+This flow minimizes latency by parallelizing processing and retrieval, while the hybrid storage approach balances speed and durability.
+
+---
+
+### Chatbot Wireframe
+![Chatbot Wireframe](screenshots/chatbot_wireframe.png)  
+The chatbot wireframe defines the user interface layout:
+- **Sidebar**: 
+  - Upload section for files and YouTube URLs.
+  - List of processed documents with timestamps.
+  - Database statistics (vector count, storage type).
+- **Main Panel**: 
+  - Chat input field for queries.
+  - Chat history displaying user questions and bot responses with timestamps.
+- **Footer**: Project credits and version info.
+
+This design prioritizes usability, placing key controls within easy reach and presenting responses in a conversational format that mimics human interaction.
+
+---
 
 ## Evaluation Criteria Fulfillment
 
@@ -227,7 +273,6 @@ MIT License - see [LICENSE](LICENSE).
 
 ## Acknowledgments
 - Built by **Jagdeesh P** for a custom RAG solution.
-- Sample files provided; image/video datasets self-curated.
 
 *Version: 1.2.5 | Updated: March 24, 2025*
 
