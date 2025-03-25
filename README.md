@@ -203,9 +203,20 @@ We built a lightweight, custom RAG pipeline to maintain full control over proces
 ---
 
 ## Output
-- **UI**: Streamlit interface with upload and chat features.
-- **Responses**: E.g., "The PDF states AI improves efficiency in task automation."
-- **Stats**: Vector count displayed for transparency.
+Raggle delivers a user-friendly Streamlit interface and accurate responses. Below are key outputs:
+
+- **Upload Interface**: Sidebar for file and YouTube URL uploads.  
+  ![Upload Interface](screenshots/upload_interface.png)
+
+- **Processed Documents**: List of processed files with timestamps.  
+  ![Processed Documents](screenshots/processed_documents.png)
+
+- **Chat Interaction**: Real-time query and response display.  
+  ![Chat Interaction](screenshots/chat_interaction.png)  
+  *Example*: "The PDF states AI improves efficiency."
+
+- **MongoDB Database**: Storage details.  
+  ![Database Stats](screenshots/mongodb_stats.png)
 
 ---
 
