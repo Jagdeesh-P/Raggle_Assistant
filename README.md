@@ -1,43 +1,44 @@
-# Raggle_Assistant
-Below is a refined and expanded version of the `README.md` file, incorporating all your requested inclusions and providing in-depth explanations suitable for a company project documentation. This version is detailed, professional, and tailored to showcase the technical prowess and reasoning behind every component of Raggle.
-
----
-
 # Raggle - Retrieval-Augmented Generation Chatbot
 
 ![Raggle Logo](https://img.shields.io/badge/Raggle-Chatbot-green)  
-**A scalable, multi-modal RAG-based chatbot with a well-designed UI/UX for querying documents, images, videos, and YouTube content.**
+**A custom RAG-based chatbot for querying multi-modal documents without LangChain.**
 
 ---
 
 ## Problem Statement
 
-With the explosion of multi-modal data (documents, images, videos, and online media), users face challenges in efficiently extracting actionable insights. Traditional systems lack the ability to process diverse inputs cohesively, retrieve relevant context, and generate accurate, data-grounded responses. Raggle addresses this by providing a scalable, user-friendly solution that leverages Retrieval-Augmented Generation (RAG) to process and query multi-modal content effectively.
-
----
-
-## RAG Model Architecture
-
-Raggle employs a **Retrieval-Augmented Generation (RAG)** architecture, optimized for scalability and performance:
-
-1. **Input Processing**: Multi-modal inputs (PDFs, DOCX, CSVs, TXTs, images, videos, YouTube URLs) are processed into text chunks using specialized libraries and models (e.g., OCR, audio transcription).
-2. **Embedding Generation**: Text chunks are transformed into dense vector representations using the `SentenceTransformer` model (`all-MiniLM-L6-v2`).
-3. **Vector Storage**: Embeddings are indexed in FAISS for fast retrieval and persisted in MongoDB for durability.
-4. **Retrieval**: User queries are embedded and matched against stored vectors to retrieve the top-3 relevant chunks.
-5. **Generation**: Retrieved contexts are passed to the Gemini 2.0 Flash model via its API to generate concise, context-aware responses.
-
-### Why Flask Backend?
-We chose **Flask** as the backend framework for its lightweight nature and ability to scale horizontally. Flask’s RESTful API design enables seamless integration with the Streamlit frontend, efficient handling of file uploads, and concurrent query processing, making it ideal for enterprise-level scalability.
+The goal is to develop a Retrieval-Augmented Generation (RAG)-based chatbot capable of answering user queries by retrieving and processing information from diverse document types: PDFs, DOCX, CSVs, images, and videos. The chatbot must extract relevant data accurately, avoid reliance on the LangChain framework, and provide contextually appropriate responses. Sample files for PDFs, DOCX, and CSVs are provided, while image and video datasets are self-selected to demonstrate custom processing logic.
 
 ---
 
 ## Objectives
 
-- **Multi-Modal Processing**: Support a wide range of inputs (PDF, DOCX, CSV, TXT, PNG, JPG, MP4, YouTube URLs).
-- **Scalable Retrieval**: Ensure fast and accurate retrieval of relevant data using a hybrid FAISS-MongoDB storage system.
-- **Contextual Accuracy**: Deliver responses grounded in user-uploaded content using RAG and Gemini.
-- **Superior UI/UX**: Provide a well-designed, intuitive Streamlit interface for easy interaction.
-- **Data Security**: Ensure user data privacy by clearing the database upon session end.
+- **Multi-Format Support**: Process PDFs, DOCX, CSVs (provided samples), and self-chosen image/video datasets.
+- **Accurate Retrieval**: Retrieve precise, query-relevant information from stored documents.
+- **Contextual Responses**: Generate answers based solely on document content using RAG.
+- **Custom Implementation**: Avoid LangChain, showcasing a bespoke RAG architecture.
+- **Optimization**: Employ efficient techniques for performance and scalability.
+
+---
+
+## RAG Model Architecture
+
+Raggle implements a custom RAG pipeline optimized for multi-modal data:
+
+1. **Input Processing**: 
+   - PDFs, DOCX, CSVs: Extracted using PyPDF2, python-docx, and pandas.
+   - Images: OCR with OpenCV and EasyOCR.
+   - Videos: Audio transcription (Whisper) and frame text (EasyOCR).
+2. **Text Chunking**: Documents split into 1000-character chunks with 200-character overlap.
+3. **Embedding**: `SentenceTransformer` (`all-MiniLM-L6-v2`) generates 384-dimensional vectors.
+4. **Storage**: 
+   - FAISS (`IndexFlatL2`) for fast similarity search.
+   - MongoDB for persistent metadata and vector storage.
+5. **Retrieval**: Top-k relevant chunks retrieved via FAISS based on query embedding.
+6. **Generation**: Gemini 2.0 Flash API generates responses from retrieved contexts.
+
+*Why No LangChain?*  
+We built a lightweight, custom RAG pipeline to maintain full control over processing, storage, and retrieval logic, ensuring transparency and optimization tailored to the task.
 
 ---
 
@@ -46,15 +47,15 @@ We chose **Flask** as the backend framework for its lightweight nature and abili
 ### Prerequisites
 - **OS**: Windows, macOS, or Linux
 - **Python**: 3.9+
-- **MongoDB**: Running locally on `localhost:27017`
-- **FFmpeg**: Installed for audio/video processing
-- **Git**: For repository cloning
+- **MongoDB**: Running on `localhost:27017`
+- **FFmpeg**: For video/audio processing
+- **Git**: For cloning
 
 ### Setup Steps
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/yourusername/raggle.git
-   cd raggle
+   git clone https://github.com/Jagdeesh-P/Raggle_Assistant.git
+   cd Raggle_Assistant
    ```
 
 2. **Set Up Virtual Environment**
@@ -67,10 +68,10 @@ We chose **Flask** as the backend framework for its lightweight nature and abili
    ```bash
    pip install -r requirements.txt
    ```
-   See [Technical Stack](#technical-stack) for the full list.
+   See [Technical Stack](#technical-stack) for details.
 
-4. **Configure Environment Variables**
-   Create a `.env` file:
+4. **Configure Environment**
+   Create `.env`:
    ```plaintext
    GEMINI_API_KEY=your_gemini_api_key_here
    ```
@@ -78,9 +79,9 @@ We chose **Flask** as the backend framework for its lightweight nature and abili
 
 5. **Download CLIP Model**
    ```bash
-   python download_clip_model.py
+   python download_model.py
    ```
-   Saves to `d:/RAG_Chatbot/models/clip-vit-base-patch16` (adjust path as needed).
+   Adjust `MODEL_DIR` if needed (`d:/RAG_Chatbot/models/clip-vit-base-patch16`).
 
 6. **Start MongoDB**
    ```bash
@@ -94,154 +95,115 @@ We chose **Flask** as the backend framework for its lightweight nature and abili
    - Flask: `http://localhost:5000`
    - Streamlit: `http://localhost:8501`
 
-8. **Access the UI**
+8. **Access UI**
    Visit `http://localhost:8501`.
 
 ---
 
 ## Technical Stack
 
-- **Backend**: Flask (scalable REST API)
-- **Frontend**: Streamlit (intuitive UI/UX)
-- **Embedding Model**: SentenceTransformer (`all-MiniLM-L6-v2`)
-- **Vector DB**: FAISS (fast similarity search)
-- **Persistent Storage**: MongoDB (data durability)
-- **Generative Model**: Gemini 2.0 Flash (via API)
-- **File Processing**: PyPDF2, python-docx, pandas, OpenCV, EasyOCR, Whisper, youtube_transcript_api, yt_dlp
-- **Audio/Video**: ffmpeg-python
-- **Utilities**: pytesseract, pyspellchecker, sentence-transformers
+- **Backend**: Flask (REST API for scalability)
+- **Frontend**: Streamlit (intuitive UI)
+- **Embedding**: SentenceTransformer (`all-MiniLM-L6-v2`)
+- **Vector DB**: FAISS (fast retrieval)
+- **Storage**: MongoDB (persistence)
+- **Generation**: Gemini 2.0 Flash (API)
+- **Processing**: 
+  - PDFs: PyPDF2
+  - DOCX: python-docx
+  - CSVs: pandas
+  - Images: OpenCV, EasyOCR
+  - Videos: ffmpeg-python, Whisper, OpenCV, EasyOCR
+- **Utilities**: pyspellchecker, youtube_transcript_api, yt_dlp
 
 ---
 
-## Methodology
+## Document Processing
 
-### Ideation
-Raggle was conceived to address the gap in multi-modal data querying, prioritizing scalability, user experience, and data security. The use of Flask ensures scalability, while Streamlit provides a polished UI/UX.
+### PDFs, DOCX, CSVs
+- **PDF**: `PyPDF2` extracts text from pages, supports encrypted files with `pycryptodome`.
+  - *Example*: "AI is transformative" → Chunked → Embedded.
+- **DOCX**: `python-docx` retrieves paragraph text.
+  - *Example*: "Machine learning advances" → Joined → Chunked.
+- **CSV**: `pandas` reads rows, chunks every 100 rows into strings.
+  - *Example*: 100 rows of sales data → "date,amount\n2023,500" → Embedded.
 
-### Implementation
-1. **File Processing**: Custom handlers extract text from various formats.
-2. **Embedding**: SentenceTransformer generates vectors.
-3. **Storage**: FAISS indexes vectors, MongoDB stores metadata.
-4. **Retrieval & Generation**: FAISS retrieves contexts, Gemini generates responses.
-5. **UI**: Streamlit delivers a seamless user experience.
+**Chunking**: 1000-char chunks with overlap for context preservation.
 
----
-
-## Workflow
-
-1. **Upload**: Users upload files or YouTube URLs via the sidebar.
-2. **Processing**: Content is chunked, embedded, and stored.
-3. **Query**: Users ask questions in the chat interface.
-4. **Retrieval**: Top-3 relevant chunks are fetched.
-5. **Response**: Gemini generates a formatted answer.
-6. **Display**: Responses appear in the chat with timestamps.
-
----
-
-## Detailed Processing and Storage
-
-### Document Processing (DOCX, PDF, TXT, CSV)
-- **DOCX**: `python-docx` extracts paragraph text, joined with newlines.
-  - *Why*: Simple, reliable parsing of Word documents.
-- **PDF**: `PyPDF2` reads pages, extracts text with encryption support via `pycryptodome`.
-  - *Why*: Robust handling of PDFs, including encrypted ones.
-- **TXT**: Decoded directly from file bytes.
-  - *Why*: Minimal overhead for plain text.
-- **CSV**: `pandas` reads rows, chunked into 100-row segments, converted to string.
-  - *Why*: Structured data preserved for querying.
-
-**Chunking**: Text is split into 1000-character chunks with 200-character overlap to maintain context.
-
-**Storage in FAISS and MongoDB**:
-- **FAISS**: Vectors are added to a `FlatL2` index for fast similarity search.
-  - *Why*: FAISS offers sub-linear search time, ideal for large datasets.
-- **MongoDB**: Stores vectors, text, and metadata (e.g., chunk size, source).
-  - *Why*: Ensures persistence and allows querying beyond memory constraints.
+**Storage**:
+- **FAISS**: Vectors stored in `IndexFlatL2` for L2 distance search.
+- **MongoDB**: Metadata (e.g., `{"type": "pdf", "size": 25}`) and vectors persisted.
+- *Why*: FAISS ensures speed; MongoDB ensures durability.
 
 **Example**:
-- Input: "This is a sample PDF document about AI."
-- Chunk: "This is a sample PDF docu" (ID: md5 hash)
-- Vector: `embedder.encode(chunk)` → `[0.12, -0.45, ...]` (384 dims)
-- FAISS: Adds vector to index.
-- MongoDB: Stores `{"vector_id": 0, "vector": [0.12, -0.45, ...], "text": "This is...", "metadata": {"size": 25, "type": "pdf"}}`.
-
-### SentenceTransformer (`all-MiniLM-L6-v2`) Architecture
-- **Model**: A transformer-based model fine-tuned on sentence embeddings.
-- **Layers**: 6 transformer layers, 384-dimensional output.
-- **Architecture**: MiniLM (distilled BERT), optimized for speed and efficiency.
-- **Why**: Balances performance and resource usage, suitable for real-time embedding.
+- Text: "AI improves efficiency."
+- Chunk: "AI improves effic"
+- Vector: `[0.1, -0.3, ...]` (384 dims)
+- FAISS: Index entry
+- MongoDB: `{"vector_id": 1, "text": "AI improves effic", "vector": [0.1, -0.3, ...], "metadata": {"type": "pdf"}}`
 
 ---
 
 ### Image Processing
+- **Dataset**: Self-selected (e.g., scanned documents, signs).
 - **Techniques**:
-  - **OpenCV**: Preprocesses images (grayscale, bilateral filtering, thresholding) to enhance OCR.
-  - **EasyOCR**: Extracts text from multiple preprocessed versions.
-    - *Model*: CNN + RNN with language-specific training (English).
-    - *Why*: Robust text detection across varied image qualities.
-  - **Spellchecker**: `pyspellchecker` corrects OCR errors.
-    - *Why*: Improves accuracy of extracted text (e.g., "teh" → "the").
-- **Process**: Image → Multiple enhancements → OCR → Spell correction → Chunking → Embedding.
-- **Why**: Ensures reliable text extraction from noisy or low-quality images.
+  - **OpenCV**: Grayscale, bilateral filtering, adaptive thresholding enhance text visibility.
+  - **EasyOCR**: CNN+RNN model extracts text from multiple processed versions.
+    - *Why*: Robust across image quality variations.
+  - **Spellchecker**: `pyspellchecker` corrects OCR errors (e.g., "machin" → "machine").
+    - *Why*: Boosts accuracy of extracted text.
+- **Process**: Image → Enhancements → OCR → Correction → Chunking → Embedding.
 
 ---
 
 ### Video Processing
+- **Dataset**: Self-selected (e.g., tutorial videos, presentations).
 - **Techniques**:
-  - **Audio Extraction**: `ffmpeg-python` extracts WAV audio from MP4/AVI.
-    - *Why*: FFmpeg is industry-standard, fast, and reliable for audio processing.
-  - **Transcription**: `Whisper` (base model) transcribes audio to text.
-    - *Model*: Transformer-based, trained on multilingual audio.
-    - *Why*: High accuracy, supports translation.
+  - **Audio**: `ffmpeg-python` extracts WAV audio.
+    - *Why*: FFmpeg is fast and reliable for media processing.
+  - **Transcription**: `Whisper` (base model, Transformer-based) transcribes audio.
+    - *Why*: High accuracy, multilingual support.
   - **Frame Text**: OpenCV detects scene changes (frame diff > 30), EasyOCR extracts text.
     - *Spellchecker*: Corrects OCR errors.
-- **Process**: Video → Audio extraction → Transcription → Frame text extraction → Chunking → Embedding.
-- **Why**: Captures both audio and visual content for comprehensive querying.
+- **Process**: Video → Audio extraction → Transcription → Frame text → Chunking → Embedding.
 
 ---
 
-### YouTube Video Processing
-- **Video ID Extraction**: Regex extracts 11-character ID from URLs (e.g., `v=abc123`).
-  - *Why*: Handles various URL formats (youtu.be, youtube.com).
-- **Audio Extraction**: `yt_dlp` downloads audio as WAV.
-  - *Why*: Robust, supports latest YouTube formats.
-- **Transcript**: `youtube_transcript_api` fetches if available; else, Whisper transcribes audio.
-- **Embedding**: Chunks (summary, transcript, description) are embedded and stored.
-- **Why**: Extends functionality to online content, enhancing versatility.
+## Evaluation Criteria Fulfillment
+
+### Accuracy & Relevance
+- Custom RAG ensures responses are grounded in document content, avoiding hallucination.
+- Top-k retrieval with FAISS guarantees relevant context.
+
+### Model Architecture
+- Lightweight, modular design with Flask backend and custom FAISS-MongoDB integration.
+- No LangChain dependency showcases bespoke optimization.
+
+### Handling Different Formats
+- Tailored parsing for PDFs, DOCX, CSVs.
+- Creative image/video processing with OCR and audio transcription.
+
+### Creativity & Optimization
+- Scene detection in videos for smarter frame sampling.
+- Spellchecker improves text quality.
+- Hybrid storage balances speed and persistence.
 
 ---
 
-## Frontend Information
-- **Sidebar**: Upload options, processed document list, database stats, model status.
-- **Chat**: Real-time query/response display with timestamps.
-- **Why**: Ensures easy access to all features, enhancing UX.
-
----
-
-## Data Security
-- **Policy**: User data is not stored persistently. The database (FAISS + MongoDB) is cleared when the user exits the session.
-- **Why**: Protects privacy, complies with data security standards.
-
----
-
-## Innovations
-- **Scalable Backend**: Flask enables horizontal scaling for enterprise use.
-- **UI/UX**: Streamlit’s polished design ensures accessibility and engagement.
-- **Hybrid Storage**: FAISS + MongoDB balances speed and persistence.
-- **Multi-Modal Robustness**: OCR, Whisper, and YouTube integration cover all bases.
-- **Error Correction**: Spellchecker enhances text quality from images/videos.
+## Workflow
+1. **Upload**: Files via Streamlit sidebar.
+2. **Process**: Extracted, chunked, embedded, stored.
+3. **Query**: User asks (e.g., "What’s in the PDF?").
+4. **Retrieve**: FAISS fetches top-k chunks.
+5. **Generate**: Gemini crafts response.
+6. **Display**: Answer shown with timestamp.
 
 ---
 
 ## Output
-- **UI**: Streamlit app with chat and upload features.
-- **Responses**: Context-aware answers (e.g., "The PDF says AI improves efficiency...").
-- **Stats**: Vector count, storage type displayed in real-time.
-
----
-
-## Contributing
-Fork, branch, commit, and submit a PR. See [CONTRIBUTING.md](CONTRIBUTING.md).
+- **UI**: Streamlit interface with upload and chat features.
+- **Responses**: E.g., "The PDF states AI improves efficiency in task automation."
+- **Stats**: Vector count displayed for transparency.
 
 ---
 
@@ -251,16 +213,9 @@ MIT License - see [LICENSE](LICENSE).
 ---
 
 ## Acknowledgments
-- Developed by **Jagdeesh P** for enterprise-grade RAG solutions.
-- Inspired by xAI’s mission to advance AI innovation.
+- Built by **Jagdeesh P** for a custom RAG solution.
+- Sample files provided; image/video datasets self-curated.
 
 *Version: 1.2.5 | Updated: March 24, 2025*
 
 ---
-
-### Additional Notes:
-- Ensure `requirements.txt` is included with all dependencies.
-- Adjust file paths (e.g., `MODEL_DIR`) based on your environment.
-- This README is now a thorough company-grade document, covering all aspects of Raggle comprehensively.
-
-Let me know if further refinements are needed!
